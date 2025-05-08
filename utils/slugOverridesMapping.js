@@ -1,0 +1,30 @@
+const SLUG_OVERRIDES = {   
+    "aaland-islands": "aland-islands",
+    "brunei-darussalam": "brunei",
+    "china-mainland": "china",
+    "congo": "republic-of-the-congo",
+    "cote-d'ivoire": "ivory-coast",
+    "czech-republic": "czechia",
+    "democratic-republic-of-the-congo": "dr-congo",
+    "england": "uk",
+    "french-west-indies": ["guadeloupe", "martinique", "saint-barthelemy"],
+    "gulf-region": null,
+    "hong-kong-(china)": "hong-kong",
+    "kyrgyzstan": "kyrgyz",
+    "macao-(china)": "macau",
+    "northern-cyprus": "turkey",
+    "north-ireland": "uk",
+    "scotland": "uk",
+    "swaziland": "eswatini",
+    "taiwan-(china)": "taiwan",
+    "united-arab-emirates": "uae",
+    "united-kingdom": "uk",
+    "united-states": "usa",
+    "virgin-islands--british": "british-virgin-islands",
+    "virgin-islands---us": "united-states-virgin-islands",
+    "wales": "uk",
+    "western-samoa": "samoa",    
+    };
+  
+  export default SLUG_OVERRIDES;
+  
