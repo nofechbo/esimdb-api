@@ -22,14 +22,13 @@ export default function extractTargets(coverageNames, title, rowIndex = null) {
       .filter(Boolean);
 
     for (const name of coverageList) {
-      normalizeSlug(name).forEach(slug => {
-        try {
-          assertValidSlug(slug, name);
-          targets.add(slug);
-        } catch (err) {
+      try {    
+        const slug = normalizeSlug(name);
+        assertValidSlug(slug, name);
+        targets.add(slug);
+      } catch (err) {
           console.warn(`Skipped slug "${slug}" (from "${name}") on row ${rowIndex ?? "?"}: ${err.message}`);
-        }
-      });
+      }
     }
   }
 
@@ -37,14 +36,13 @@ export default function extractTargets(coverageNames, title, rowIndex = null) {
   if (coverageList.length > 1 && title) {
     const match = title.trim().match(/^([A-Za-z]+(?:\s+[A-Za-z]+)?)/);
     if (match) {
-      normalizeSlug(match[1]).forEach(slug => {
         try {
+          const slug = normalizeSlug(match[1]);
           assertValidSlug(slug, match[1]);
           targets.add(slug);
         } catch (err) {
           console.log(`Skipped slug "${slug}" (from "${match[1]}") on row ${rowIndex ?? "?"}: ${err.message}`);
         }
-      });
     }
   }
 

@@ -1,61 +1,29 @@
-import { FIELD_TO_SHEET_HEADER_MAP, VIRTUAL_FIELDS } from "./csvUtils.js";
-import { processValidity,
-         processDataCap, 
-         processDataUnit,
-         processPrices,
-         processCoverages,
-         processTargets,
-         processLink,
-         processName
-       } from "./fieldProcessors.js";
-
-
-// Unified processor lookup
-const FIELD_PROCESSORS = {
-    validity: processValidity,
-    dataCap: processDataCap,
-    dataUnit: processDataUnit,
-    prices: processPrices,
-    coverages: processCoverages,
-    name: processName,
-    targets: processTargets,
-    link: processLink
-};
+import { FIELDS_DATA } from "./csvUtils.js";
 
 export default function validateRow(row, index, requiredFields) {
     const cleanedRow = {};
 
     for (const field of requiredFields) {
-        const column = FIELD_TO_SHEET_HEADER_MAP[field];
-        
-        if ((!VIRTUAL_FIELDS.has(field)) && 
-            (column === undefined || !(column in row))) {
-            throw new Error(`No column mapping for required field "${field}"`);
+        let header;
+
+        if (!(field in FIELDS_DATA)) {
+            throw new Error(`No header mapping for required field "${field}"`);
+        }
+
+        header = FIELDS_DATA[field].header;
+        if (header && !(header in row)) {
+            throw new Error(`missing header: "${header}"`);
         }
 
         try { 
-            const processor = FIELD_PROCESSORS[field];
+            const rawValue = header ? row[header] : null;
 
-            if (!processor) {
-                // No processor registered → fallback to raw value (i.e planName)
-                cleanedRow[field] = row[column];
-                continue;
-            }
-
-            const result = processor(row, field, index);
-
-            if (typeof result === "object" && result !== null && !Array.isArray(result)) {
-                Object.assign(cleanedRow, result); // e.g. { dataCap, dataUnit }
-            } else {
-                cleanedRow[field] = result;
-            }
-
+            cleanedRow[field] = FIELDS_DATA[field].processor(row, rawValue, field, index);
         } catch (err) {
-            if (err.fatal) throw err;
             console.warn(`Skipping row ${index + 2}: ${err.message}`);
-            return { isValid: false }; //skip row
+            return null; 
         }
     }
 
-    return { isValid: true, cleanedRow };
+    return cleanedRow;
 }

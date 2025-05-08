@@ -7,7 +7,7 @@ const SLUG_OVERRIDES = {
     "czech-republic": "czechia",
     "democratic-republic-of-the-congo": "dr-congo",
     "england": "uk",
-    "french-west-indies": ["guadeloupe", "martinique", "saint-barthelemy"],
+    "french-west-indies": "martinique",
     "gulf-region": null,
     "hong-kong-(china)": "hong-kong",
     "kyrgyzstan": "kyrgyz",
