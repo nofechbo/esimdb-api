@@ -5,8 +5,8 @@ import { initializeSlugValidator } from "./utils/slugValidator.js";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-//const sheetId = "1Zc8xwu1sZul691Yx3O_-KlNRZswoz4yudN8qsWuw0TM";
-const sheetId = "1F0OYAlu89VWT4qmQrhh2H7qfzjvHLoL22IcUFPkNt4Y"; //test sheet
+const sheetId = "1Zc8xwu1sZul691Yx3O_-KlNRZswoz4yudN8qsWuw0TM";
+//const sheetId = "1F0OYAlu89VWT4qmQrhh2H7qfzjvHLoL22IcUFPkNt4Y"; //test sheet
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
 
 const requiredDataPlanFields = [
