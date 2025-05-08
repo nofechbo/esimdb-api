@@ -1,9 +1,12 @@
 # eSIMDB API Integration
 
-This Node.js backend fetches eSIM plan data from a public Google Sheet and transforms it into a JSON structure compatible with [esimdb.com](https://esimdb.com). It exposes two API endpoints:
+This is a production-ready backend service that fetches eSIM plan data from a public Google Sheet and transforms it into a JSON format compatible with [esimdb.com](https://esimdb.com).
 
-- `GET /data-plans-for-esimdb`
-- `GET /links-for-esimdb`
+Built with Node.js and Express, it exposes two API endpoints for integration:
+- `/data-plans-for-esimdb` — returns structured plan data
+- `/links-for-esimdb` — returns plan links and validated target slugs
+
+Includes robust validation, slug normalization, name truncation, and modular utility logic. Fully deployable on Render with logging support.
 
 ---
 
@@ -63,10 +66,6 @@ This Node.js backend fetches eSIM plan data from a public Google Sheet and trans
 - `slugValidator.js` — Loads the official esimdb slug list and provides slug validation
 - `slugOverridesMapping.js` — Custom mappings and corrections for country/region name inconsistencies
 - `normalizeSlug.js` — Slug normalization logic used in target extraction
-
-### scripts/
-- `unknown_slugs_report.txt` — Log of unrecognized slugs, generated during development
-- `todo.txt` — Project to-do notes
 
 ---
 
