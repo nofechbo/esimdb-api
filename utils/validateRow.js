@@ -1,5 +1,7 @@
 import { FIELDS_DATA } from "./csvUtils.js";
 
+const skip_headers = 2;
+
 export default function validateRow(row, index, requiredFields) {
     const cleanedRow = {};
 
@@ -17,10 +19,11 @@ export default function validateRow(row, index, requiredFields) {
 
         try { 
             const rawValue = header ? row[header] : null;
+            const processor = FIELDS_DATA[field].processor;
+            cleanedRow[field] = processor(row, rawValue);
 
-            cleanedRow[field] = FIELDS_DATA[field].processor(row, rawValue, field, index);
         } catch (err) {
-            console.warn(`Skipping row ${index + 2}: ${err.message}`);
+            console.warn(`Skipping row ${index + skip_headers}: ${err.message}`);
             return null; 
         }
     }

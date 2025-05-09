@@ -1,4 +1,5 @@
 import fetch from "node-fetch";
+import { SLUG_OVERRIDES } from "./csvUtils.js";
 
 let OFFICIAL_SLUGS = null;
 
@@ -16,7 +17,17 @@ export function assertValidSlug(slug, originalInput) {
     }
 
     if (!OFFICIAL_SLUGS.has(slug)) {
-        throw new Error(`Invalid slug "${slug}" (from "${originalInput}") — not in esimdb list`);
+        throw new Error(`Invalid slug "${slug}" — not in esimdb list`);
     }
+}
+
+export function normalizeSlug(regionName) {
+    const slug = regionName.toLowerCase().trim().replace(/\s+/g, "-");
+
+    if (SLUG_OVERRIDES.hasOwnProperty(slug)) {
+        return SLUG_OVERRIDES[slug];
+    }
+
+    return slug;
 }
 

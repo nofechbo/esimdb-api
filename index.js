@@ -12,7 +12,7 @@ const SHEET_URL = `https://docs.google.com/spreadsheets/d/${sheetId}/export?form
 const requiredDataPlanFields = [
     "validity",
     "dataCap",
-    "dataUnit", //dataCap must come before dataUnit because dataUnit depends on it
+    "dataUnit",
     "prices",
     "planName",
     "coverages"

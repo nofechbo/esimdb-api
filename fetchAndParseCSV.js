@@ -25,7 +25,12 @@ export default async function fetchAndParseCSV(sheetUrl, requiredFields) {
         throw new Error("CSV appears to be empty or malformed.");
     }
 
-    let result = [];
+    return records
+        .map((row, index) => validateRow(row, index, requiredFields))
+        .filter(Boolean);
+    
+    
+        /*let result = [];
     for (let [index, row] of records.entries()) {
         const cleanedRow = validateRow(row, index, requiredFields);
         if (cleanedRow) {
@@ -33,5 +38,5 @@ export default async function fetchAndParseCSV(sheetUrl, requiredFields) {
         }
     }
 
-    return result;
+    return result;*/
 }
