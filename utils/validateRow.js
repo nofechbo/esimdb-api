@@ -1,9 +1,15 @@
-import { FIELDS_DATA } from "./csvUtils.js";
+import { FIELDS_DATA, specialRequiredHeaders } from "./csvUtils.js";
 
 const skip_headers = 2;
 
 export default function validateRow(row, index, requiredFields) {
     const cleanedRow = {};
+
+    for (const hdr of specialRequiredHeaders) {
+        if (!(hdr in row)) {
+            throw new Error(`Missing required column: ${hdr}`);
+        }
+    }
 
     for (const field of requiredFields) {
         let header;

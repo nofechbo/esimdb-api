@@ -32,6 +32,8 @@ export const FIELDS_DATA = {
     dataUnit: { header: null, processor: processDataUnit} //field is computed, not retrieved from sheet
 };
 
+export const specialRequiredHeaders = ["Operators"];
+
 export const SLUG_OVERRIDES = {   
     "aaland-islands": "aland-islands",
     "brunei-darussalam": "brunei",

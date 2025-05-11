@@ -33,11 +33,7 @@ export function processPrices(row, rawValue) {
 }
 
 export function processCoverages(row, rawValue) {
-    const networks = row["Operators"];
-    if (typeof networks !== "string" || !networks.trim()) {
-        throw new Error("Missing or empty 'Operators' field");
-    }
-
+    const networks = row["Operators"] ?? "";
     return getCoveragesAndNetworks(rawValue, networks);
 }
 
