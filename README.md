@@ -26,8 +26,9 @@ Includes robust validation, slug normalization, name truncation, and modular uti
 - Maps sheet fields to expected JSON fields
 - Computes derived fields like `targets`
 - Validates and normalizes slugs against esimdb's official slug list with override mappings
+- Ensures countries without operators are still included in results (with no networks)
 - Truncates names to meet character limits
-- Skips rows with invalid data (e.g. bad price, bad country code) while logging issues with row numbers
+- Skips only rows with invalid required fields (e.g. bad price or malformed code) while logging issues with row numbers
 - Uses standardized per-field processors to simplify and modularize data validation logic
 - Aborts and returns 500 for fatal sheet or mapping errors
 
@@ -49,16 +50,24 @@ Includes robust validation, slug normalization, name truncation, and modular uti
 
 ---
 
+## 🧪 Testing
+- Use Postman to test both endpoints with live sheet data
+- Add console.log or console.warn in processors to trace row-level issues
+- To simulate missing headers or malformed data, edit the Sheet directly and re-fetch
+
+---
+
 ## 📁 File Overview
 
 ### Root
 - `index.js` — Express app and route handlers for the two endpoints
-- `fetchAndParseCSV.js` — Orchestrates sheet fetching, parsing, row validation, and transformation
+- `fetchAndParseCSV.js` — Fetches, parses, and validates the sheet rows using required field logic
 
 ### utils/
-- `csvUtils.js` — CSV parsing + field data (header mapping + processor) +  slugOverridesMapping (for country/region name inconsistencies)
+- `csvUtils.js` — Central mapping for field headers and processors; includes FIELDS_DATA and utility functions for parsing and normalization
 - `validateRow.js` — Applies per-field validation using modular processors; handles row skipping and fatal errors
-- `fieldProcessors.js` — Contains modular per-field processors with standardized interface (row, field, index); can return single values or objects
-- `extractSlugTargets.js` — Builds and validates slug target lists from coverage names and titles
-- `truncateName.js` — Truncates long plan names according to provided max char length
-- `slugValidator.js` — Loads the official esimdb slug list and provides slug validation and normalization
+- `fieldProcessors.js` — Modular per-field processors (e.g. processPrice, processCoverages, etc.) with consistent interfaces
+- `getCoveragesAndNetworks.js` — Parses country codes and mobile network data into structured coverage arrays
+- `extractSlugTargets.js` — Converts location names and plan titles into validated esimdb slug targets
+- `truncateName.js` — Trims plan names to length limits while preserving meaning
+- `slugValidator.js` — Loads official esimdb slug list and validates or normalizes against it
