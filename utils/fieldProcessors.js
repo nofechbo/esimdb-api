@@ -1,6 +1,7 @@
 import { FIELDS_DATA } from "./csvUtils.js";
 import extractSlugTargets from "./extractSlugTargets.js";
 import { truncateName } from "./truncateName.js";
+import { getCoveragesAndNetworks } from "./getCoveragesAndNetworks.js";
 
 const PLAN_NAME_LIMIT = 35;
 const LINK_NAME_LIMIT = 30;
@@ -32,19 +33,12 @@ export function processPrices(row, rawValue) {
 }
 
 export function processCoverages(row, rawValue) {
-    const validCodes = rawValue
-        .split(",")
-        .map(code => code.trim())
-        .filter(code => {
-            if (code.length !== 2) {
-                return false;
-            }
-            return true;
-        });
+    const networks = row["Operators"];
+    if (typeof networks !== "string" || !networks.trim()) {
+        throw new Error("Missing or empty 'Operators' field");
+    }
 
-    if (validCodes.length === 0) throw new Error("No valid country codes found");
-
-    return validCodes.map(code => ({ code }));
+    return getCoveragesAndNetworks(rawValue, networks);
 }
 
 export function processTargets(row, rawValue) { 

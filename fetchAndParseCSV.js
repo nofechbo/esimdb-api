@@ -28,15 +28,4 @@ export default async function fetchAndParseCSV(sheetUrl, requiredFields) {
     return records
         .map((row, index) => validateRow(row, index, requiredFields))
         .filter(Boolean);
-    
-    
-        /*let result = [];
-    for (let [index, row] of records.entries()) {
-        const cleanedRow = validateRow(row, index, requiredFields);
-        if (cleanedRow) {
-            result.push(cleanedRow);
-        }
-    }
-
-    return result;*/
 }
