@@ -51,5 +51,21 @@ export function processName(row, rawValue) {
 export function processLink(row, rawValue) {
     const trimmed = typeof rawValue === "string" ? rawValue.trim() : "";
     return trimmed || "https://pingwe.com/"; //fallback to homepage if no link is found
-  }
-  
+}
+
+export function processDataCapPer(row, rawValue) {
+    if (typeof rawValue !== "string") {
+        return null;
+    }
+
+    const VALID_PERIODS = ["day", "week", "month"];
+    const capPer = rawValue.trim().toLowerCase();
+    
+    return VALID_PERIODS.includes(capPer) ? capPer : null;
+}
+
+export function processReducedSpeed(row, rawValue) {   
+    const kbps = parseInt(rawValue);
+
+    return isNaN(kbps) ? null : kbps;
+}

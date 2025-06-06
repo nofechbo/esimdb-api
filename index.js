@@ -15,7 +15,9 @@ const requiredDataPlanFields = [
     "dataUnit",
     "prices",
     "planName",
-    "coverages"
+    "coverages",
+    "dataCapPer",
+    "reducedSpeed",
 ];  
 
 app.get("/data-plans-for-esimdb", async (req, res) => {

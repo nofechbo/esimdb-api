@@ -7,7 +7,9 @@ import { processValidity,
          processCoverages,
          processTargets,
          processLink,
-         processName
+         processName,
+         processDataCapPer,
+         processReducedSpeed,
         } from "./fieldProcessors.js";
 
         
@@ -29,7 +31,9 @@ export const FIELDS_DATA = {
     name: { header: "Name", processor: processName },
     link: { header: "Link", processor: processLink },
     targets: { header: "Location Name", processor: processTargets },
-    dataUnit: { header: null, processor: processDataUnit} //field is computed, not retrieved from sheet
+    dataUnit: { header: null, processor: processDataUnit}, //field is computed, not retrieved from sheet
+    dataCapPer: { header: "GB per", processor: processDataCapPer },
+    reducedSpeed: { header: "reduced speed", processor: processReducedSpeed },
 };
 
 export const specialRequiredHeaders = ["Operators"];
