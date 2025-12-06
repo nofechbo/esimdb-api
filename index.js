@@ -41,7 +41,16 @@ app.get("/links-for-esimdb", async (req, res) => {
     try {
         const data = await fetchAndParseCSV(SHEET_URL, requiredLinkFields);
         if (handleEmpty(res, data)) return;
-        res.json(data);
+        const uniqueData = [
+            ...new Map(
+                data.map(item => {
+                const cleanedName = item.name.replace(/^(.*?)\s*-.*/, "$1").trim();
+                return [cleanedName, { ...item, name: cleanedName }];
+                })
+            ).values()
+        ];
+
+        res.json(uniqueData);
     } catch (err) {
         console.error("Error fetching or parsing CSV:", err);
         res.status(500).json({ error: err.message });
