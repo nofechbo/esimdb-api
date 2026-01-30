@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express from "express";
 import fetchAndParseCSV from "./fetchAndParseCSV.js";
 import { initializeSlugValidator } from "./utils/slugValidator.js";
@@ -37,20 +38,46 @@ const requiredLinkFields = [
     "targets"
 ];
 
-app.get("/links-for-esimdb", async (req, res) => {
-    try {
-        const data = await fetchAndParseCSV(SHEET_URL, requiredLinkFields);
-        if (handleEmpty(res, data)) return;
-        const uniqueData = [
-            ...new Map(
-                data.map(item => {
+const REF_CODE = process.env.REF_CODE;
+
+function appendRefToLink(link) {
+    if (!REF_CODE) return link;
+    const separator = link.includes("?") ? "&" : "?";
+    return `${link}${separator}ref=${REF_CODE}`;
+}
+
+async function getLinksData() {
+    const data = await fetchAndParseCSV(SHEET_URL, requiredLinkFields);
+    return [
+        ...new Map(
+            data.map(item => {
                 const cleanedName = item.name.replace(/^(.*?)\s*-.*/, "$1").trim();
                 return [cleanedName, { ...item, name: cleanedName }];
-                })
-            ).values()
-        ];
+            })
+        ).values()
+    ];
+}
 
-        res.json(uniqueData);
+app.get("/links", async (req, res) => {
+    try {
+        const data = await getLinksData();
+        if (handleEmpty(res, data)) return;
+        res.json(data);
+    } catch (err) {
+        console.error("Error fetching or parsing CSV:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get("/links-for-esimdb", async (req, res) => {
+    try {
+        const data = await getLinksData();
+        if (handleEmpty(res, data)) return;
+        const dataWithRef = data.map(item => ({
+            ...item,
+            link: appendRefToLink(item.link)
+        }));
+        res.json(dataWithRef);
     } catch (err) {
         console.error("Error fetching or parsing CSV:", err);
         res.status(500).json({ error: err.message });

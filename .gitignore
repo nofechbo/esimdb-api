@@ -4,6 +4,9 @@
 # Ignore everything in scripts/ folder
 scripts/
 
+# Environment variables
+.env
+
 # Node.js dependencies
 node_modules/
 
