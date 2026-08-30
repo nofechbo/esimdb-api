@@ -1,73 +1,172 @@
 # eSIMDB API Integration
 
-This is a production-ready backend service that fetches eSIM plan data from a public Google Sheet and transforms it into a JSON format compatible with [esimdb.com](https://esimdb.com).
+**A live Node.js integration service that transforms eSIM plan data from Google Sheets into the structured format required by eSIMDB.**
 
-Built with Node.js and Express, it exposes two API endpoints for integration:
-- `/data-plans-for-esimdb` — returns structured plan data
-- `/links-for-esimdb` — returns plan links and validated target slugs
+The service fetches plan data from a public Google Sheet, validates and normalizes each record, and exposes two HTTP endpoints used for eSIMDB integration.
 
-Includes robust validation, slug normalization, name truncation, and modular utility logic. Fully deployable on Render with logging support.
+> The service is currently deployed and running on Render.
 
----
+## Project highlights
 
-## 🔧 Tech Stack
+* **Google Sheets ingestion** — fetch plan data directly from a published CSV source.
+* **eSIMDB-compatible transformation** — map internal plan fields into the structures expected by eSIMDB.
+* **Slug validation** — validate destinations against eSIMDB's supported slug list and apply known fallback mappings.
+* **Coverage parsing** — convert country and network data into structured coverage objects.
+* **Field-level validation** — process prices, codes, titles, destinations, and other values through reusable validation functions.
+* **Graceful row handling** — skip individual malformed rows while allowing valid data to continue processing.
+* **Fatal schema protection** — reject requests when required sheet structure or upstream data cannot be processed safely.
+* **Name normalization** — ensure generated plan names comply with external integration limits.
 
-- Node.js (ESM)
-- Express
-- `node-fetch` for HTTP requests
-- `csv-parse` for parsing CSV
-- Postman (for local testing and endpoint debugging)
+## API endpoints
 
----
+### `GET /data-plans-for-esimdb`
 
-## 🧩 Key Features
+Returns transformed eSIM plan data in the structure required by eSIMDB.
 
-- Parses structured CSV data from a Google Sheet
-- Maps sheet fields to expected JSON fields
-- Computes derived fields like `targets`
-- Validates and normalizes slugs against esimdb's official slug list with override mappings
-- Ensures countries without operators are still included in results (with no networks)
-- Truncates names to meet character limits
-- Skips only rows with invalid required fields (e.g. bad price or malformed code) while logging issues with row numbers
-- Uses standardized per-field processors to simplify and modularize data validation logic
-- Aborts and returns 500 for fatal sheet or mapping errors
+The processing pipeline:
 
----
+1. Fetches the configured Google Sheet as CSV.
+2. Parses the CSV into records.
+3. Maps sheet columns to internal fields.
+4. Validates and normalizes each row.
+5. Generates coverage, network, and destination information.
+6. Returns the resulting plan data as JSON.
 
-## ⚠️ Error Handling
+### `GET /links-for-esimdb`
 
-- **Fatal errors** (e.g. fetch failure, malformed or missing required columns) return HTTP 500
-- **Row-level issues** (e.g. invalid price or missing country code) are logged and skipped
-- Slug validation uses the live esimdb slug list with fallback mappings; invalid slugs are logged per row
+Returns plan links and validated target slugs used by eSIMDB.
 
----
+Destination names are checked against eSIMDB's supported slugs before being included.
 
-## 🚀 Deployment Notes
+## Technical architecture
 
-- Works locally and can be deployed to platforms like Render
-- Sheet ID is configured in `index.js`
-- If Google Sheet column names change, update internal mappings accordingly
+```mermaid
+flowchart LR
+    Sheet[Published Google Sheet] --> Fetch[CSV fetch]
+    Fetch --> Parser[CSV parser]
+    Parser --> Validation[Field validation & normalization]
 
----
+    Validation --> Coverage[Coverage & network processing]
+    Validation --> Slugs[eSIMDB slug validation]
+    Validation --> Names[Plan-name normalization]
 
-## 🧪 Testing
-- Use Postman to test both endpoints with live sheet data
-- Add console.log or console.warn in processors to trace row-level issues
-- To simulate missing headers or malformed data, edit the Sheet directly and re-fetch
+    Coverage --> Plans[Plan transformation]
+    Slugs --> Plans
+    Names --> Plans
 
----
+    Plans --> DataAPI[/data-plans-for-esimdb]
+    Plans --> LinkAPI[/links-for-esimdb]
 
-## 📁 File Overview
+    SlugSource[eSIMDB supported slugs] --> Slugs
+```
 
-### Root
-- `index.js` — Express app and route handlers for the two endpoints
-- `fetchAndParseCSV.js` — Fetches, parses, and validates the sheet rows using required field logic
+The integration separates CSV retrieval, field processing, row validation, coverage handling, slug normalization, and output generation into focused utility modules.
 
-### utils/
-- `csvUtils.js` — Central mapping for field headers and processors; includes FIELDS_DATA and utility functions for parsing and normalization
-- `validateRow.js` — Applies per-field validation using modular processors; handles row skipping and fatal errors
-- `fieldProcessors.js` — Modular per-field processors (e.g. processPrice, processCoverages, etc.) with consistent interfaces
-- `getCoveragesAndNetworks.js` — Parses country codes and mobile network data into structured coverage arrays
-- `extractSlugTargets.js` — Converts location names and plan titles into validated esimdb slug targets
-- `truncateName.js` — Trims plan names to length limits while preserving meaning
-- `slugValidator.js` — Loads official esimdb slug list and validates or normalizes against it
+This keeps external-format requirements isolated from the main Express route handlers and makes individual transformation rules easier to modify when the source sheet or eSIMDB requirements change.
+
+## Technology stack
+
+| Area        | Technologies  |
+| ----------- | ------------- |
+| Runtime     | Node.js       |
+| API         | Express       |
+| Modules     | ES Modules    |
+| HTTP        | `node-fetch`  |
+| CSV parsing | `csv-parse`   |
+| Source data | Google Sheets |
+| Deployment  | Render        |
+
+## Running locally
+
+### Clone the repository
+
+```bash
+git clone https://github.com/nofechbo/esimdb-api.git
+cd esimdb-api
+```
+
+### Install dependencies
+
+```bash
+npm install
+```
+
+### Configure the environment
+
+Copy the example file:
+
+```bash
+cp .env.example .env
+```
+
+Fill in any required configuration values.
+
+### Start the service
+
+```bash
+npm start
+```
+
+You can then test the API endpoints using a browser, curl, Postman, or another HTTP client.
+
+## Error handling
+
+The service distinguishes between failures that invalidate the entire request and problems affecting only individual rows.
+
+### Fatal errors
+
+Examples include:
+
+* Unable to fetch the source sheet
+* Missing required columns
+* Invalid source structure
+* Errors that prevent reliable transformation
+
+These result in an HTTP `500` response.
+
+### Row-level errors
+
+Examples include:
+
+* Invalid prices
+* Missing or malformed country codes
+* Invalid field values
+* Unsupported destination slugs
+
+Problematic rows can be logged and skipped while valid rows continue through the pipeline.
+
+## Repository structure
+
+```text
+esimdb-api/
+├── index.js                    # Express application and API routes
+├── fetchAndParseCSV.js         # Fetches and parses source CSV data
+├── utils/
+│   ├── csvUtils.js             # Field mappings and CSV utilities
+│   ├── validateRow.js          # Row-level validation
+│   ├── fieldProcessors.js      # Individual field processors
+│   ├── getCoveragesAndNetworks.js
+│   ├── extractSlugTargets.js
+│   ├── truncateName.js
+│   └── slugValidator.js
+├── .env.example
+├── package.json
+└── README.md
+```
+
+## Engineering decisions demonstrated
+
+* **Transformation pipeline:** external source data moves through explicit parsing, validation, normalization, and output stages.
+* **Partial-failure tolerance:** one malformed plan does not invalidate an otherwise usable data feed.
+* **Schema validation:** structural source errors fail early rather than generating unreliable integration output.
+* **Modular field processors:** validation rules remain isolated instead of accumulating inside route handlers.
+* **External taxonomy validation:** destination values are reconciled against eSIMDB's supported target slugs before publishing.
+* **Operational deployment:** the service is deployed on Render and used as a live integration rather than only as a local proof of concept.
+
+## Deployment
+
+The service is currently deployed on **Render**.
+
+The Google Sheet ID and other configuration values are supplied through the application's environment or source configuration.
+
+If the upstream Sheet column names or eSIMDB integration requirements change, the corresponding field mappings and processors should be updated accordingly.
