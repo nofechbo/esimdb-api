@@ -39,25 +39,24 @@ Returns plan links and validated target slugs used by eSIMDB.
 Destination names are checked against eSIMDB's supported slugs before being included.
 
 ## Technical architecture
-
 ```mermaid
 flowchart LR
-    Sheet[Published Google Sheet] --> Fetch[CSV fetch]
-    Fetch --> Parser[CSV parser]
-    Parser --> Validation[Field validation & normalization]
+    Sheet["Published Google Sheet"] --> Fetch["CSV fetch"]
+    Fetch --> Parser["CSV parser"]
+    Parser --> Validation["Field validation & normalization"]
 
-    Validation --> Coverage[Coverage & network processing]
-    Validation --> Slugs[eSIMDB slug validation]
-    Validation --> Names[Plan-name normalization]
+    Validation --> Coverage["Coverage & network processing"]
+    Validation --> Slugs["eSIMDB slug validation"]
+    Validation --> Names["Plan-name normalization"]
 
-    Coverage --> Plans[Plan transformation]
+    Coverage --> Plans["Plan transformation"]
     Slugs --> Plans
     Names --> Plans
 
-    Plans --> DataAPI[/data-plans-for-esimdb]
-    Plans --> LinkAPI[/links-for-esimdb]
+    Plans --> DataAPI["/data-plans-for-esimdb"]
+    Plans --> LinkAPI["/links-for-esimdb"]
 
-    SlugSource[eSIMDB supported slugs] --> Slugs
+    SlugSource["eSIMDB supported slugs"] --> Slugs
 ```
 
 The integration separates CSV retrieval, field processing, row validation, coverage handling, slug normalization, and output generation into focused utility modules.
